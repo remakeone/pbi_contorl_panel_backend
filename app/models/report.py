@@ -1,5 +1,7 @@
 from app import db
 from datetime import datetime
+import pytz
+
 
 class Report(db.Model):
     """
@@ -23,18 +25,21 @@ class Report(db.Model):
     
     # visible_groups关系由RoleGroup的backref定义
 
-    def to_dict(self,need_pbi_id=False):
+    def to_dict(self, need_pbi_id=False):
         """
         将报表对象转换为字典格式
         Returns:
             dict: 包含报表信息的字典
         """
+        def format_time(dt):
+            # 如果时间对象存在，转换为 YYYY-MM-DD HH:MM:SS 格式字符串，否则返回 None
+            return dt.strftime("%Y-%m-%d %H:%M:%S") if dt else None
         return {
             'id': self.id,
             'name': self.name,
             'description': self.description,
             'powerbi_id': self.powerbi_id if need_pbi_id else None,
             'is_active': self.is_active,
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat()
-        } 
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+        }

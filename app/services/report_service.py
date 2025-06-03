@@ -18,8 +18,10 @@ class ReportService:
         """
         all_reports = Report.query.filter_by(is_active=True).all()
         if current_user.is_authenticated and current_user.role == 'admin':
-            return all_reports
-        return [report for report in all_reports if current_user.can_view_report(report)]
+            return [report.to_dict() for report in all_reports]
+        elif current_user.is_authenticated and current_user.role == 'editor':   # 对于编辑者，多返回一个报表id
+            return [report.to_dict(need_pbi_id=True) for report in all_reports]
+        return [report.to_dict() for report in all_reports if current_user.can_view_report(report)]
 
     @staticmethod
     def get_report_by_id(report_id):
@@ -72,6 +74,8 @@ class ReportService:
         """
         report = Report.query.get_or_404(report_id)
         for key, value in data.items():
+            if key == 'powerbi_id' and not value:
+                continue
             if hasattr(report, key):
                 setattr(report, key, value)
         db.session.commit()

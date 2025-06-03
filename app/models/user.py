@@ -32,15 +32,13 @@ class User(UserMixin, db.Model):
         Returns:
             bool: 是否具有权限
         """
-        # 管理员拥有所有权限
-        if self.role == 'admin':
+        # 管理员和编辑者拥有所有权限
+        if self.role == 'admin' or self.role == 'editor':
             return True
         
         # 定义各角色的权限映射
         permission_map = {
             'user': ['view_reports'],  # 普通用户只能查看报表
-            'editor': ['view_reports', 'edit_reports'],  # 编辑者可以查看和编辑报表
-            'admin': ['view_reports', 'edit_reports', 'manage_users']  # 管理员拥有所有权限
         }
         
         return permission in permission_map.get(self.role, [])
@@ -58,8 +56,8 @@ class User(UserMixin, db.Model):
             "is_bind": not self.dingtalk_id == self.name,
             'role': self.role,
             'is_active': self.is_active,
-            'created_at': self.created_at.isoformat(),
-            'last_login': self.last_login.isoformat() if self.last_login else None,
+            'created_at': self.created_at,
+            'last_login': self.last_login if self.last_login else None,
             "role_groups": [group.to_dict(simple=True) for group in self.role_groups] if self.role_groups else []
         }
 

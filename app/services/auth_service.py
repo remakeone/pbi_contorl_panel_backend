@@ -65,7 +65,7 @@ class DingtalkAuthService:
         # 首先尝试用钉钉ID查找已注册用户
         username = dingtalk_info.get('nick', dingtalk_info.get('name'))
         if dingtalk_info.get('unionId') is None:
-            user=None
+            user = None
         else:
             user = User.query.filter_by(dingtalk_id=dingtalk_info['unionId']).first()
 

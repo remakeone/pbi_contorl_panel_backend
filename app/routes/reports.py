@@ -16,7 +16,7 @@ def get_reports():
         JSON: 报表列表
     """
     all_reports = ReportService.get_all_reports()
-    return jsonify([report.to_dict() for report in all_reports])
+    return jsonify([report for report in all_reports])
 
 @reports.route('/api/reports/<int:report_id>', methods=['GET'])
 @permission_required(resource_type='report')
