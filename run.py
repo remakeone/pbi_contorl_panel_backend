@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from loguru import logger
 logger.add("app/log.log", rotation="10 MB")
 from flask import request
-
+import traceback
 app = create_app()
 
 # 初始化数据库迁移
@@ -35,7 +35,8 @@ def not_found_error(error):
     """
     404错误处理
     """
-    return {'error': '未找到请求的资源'}, 404
+
+    return {'error': str(error)}, 404
 
 
 @app.errorhandler(Exception)
@@ -61,7 +62,7 @@ def internal_error(error):
     except Exception:
         # 其他异常也静默处理，避免递归
         pass
-    
+    logger.error(traceback.format_exc())
     return {'error': str(error)}, 500
 
 if __name__ == '__main__':

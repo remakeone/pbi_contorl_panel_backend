@@ -1,6 +1,5 @@
 from app import db
 from datetime import datetime
-import pytz
 
 
 class Report(db.Model):
@@ -18,12 +17,14 @@ class Report(db.Model):
 
     # 状态字段
     is_active = db.Column(db.Boolean, default=True)  # 是否激活
-    
+    is_hide_report = db.Column(db.Boolean, default=True)  # 是否为隐藏报表
+
     # 时间字段
     created_at = db.Column(db.DateTime, default=datetime.utcnow)  # 创建时间
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # 更新时间
-    
-    # visible_groups关系由RoleGroup的backref定义
+
+    # 关系定义
+    tags = db.relationship('Tag', secondary='report_tags', backref='reports')
 
     def to_dict(self, need_pbi_id=False):
         """
@@ -31,15 +32,15 @@ class Report(db.Model):
         Returns:
             dict: 包含报表信息的字典
         """
-        def format_time(dt):
-            # 如果时间对象存在，转换为 YYYY-MM-DD HH:MM:SS 格式字符串，否则返回 None
-            return dt.strftime("%Y-%m-%d %H:%M:%S") if dt else None
+
         return {
             'id': self.id,
             'name': self.name,
             'description': self.description,
             'powerbi_id': self.powerbi_id if need_pbi_id else None,
             'is_active': self.is_active,
+            'is_hide_report': self.is_hide_report,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
+            'tags': [tag.name for tag in self.tags]
         }
